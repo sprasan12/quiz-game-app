@@ -1,0 +1,11 @@
+.score-board {
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .score-item {
+    font-size: 18px;
+    margin: 10px 0;
+  }
