@@ -5,6 +5,7 @@ import { getAllCards, calculateScore } from './services/api';
 import './styles/App.css';
 import QuizMode from './components/QuizMode';
 import soundManager from './utils/sound';
+import PostFlopQuiz from './components/PostFlopQuiz';
 
 interface CardType {
   value: string;
@@ -21,7 +22,7 @@ interface ScoreDetails {
 }
 
 const App: React.FC = () => {
-  const [gameMode, setGameMode] = useState<'menu' | 'selection' | 'quiz'>('menu');
+  const [gameMode, setGameMode] = useState<'menu' | 'selection' | 'quiz' | 'postflop'>('menu');
   const [allCards, setAllCards] = useState<Record<string, CardType[]>>({});
   const [selectedCards, setSelectedCards] = useState<(CardType | undefined)[]>([]);
   const [score, setScore] = useState<number | null>(null);
@@ -125,6 +126,9 @@ const App: React.FC = () => {
           <button onClick={() => setGameMode('quiz')}>
             Score Guessing Quiz
           </button>
+          <button onClick={() => setGameMode('postflop')}>
+            Post-Flop Quiz
+          </button>
         </div>
       </div>
     );
@@ -134,6 +138,14 @@ const App: React.FC = () => {
     return (
       <div className="App">
         <QuizMode onBackToMenu={() => setGameMode('menu')} />
+      </div>
+    );
+  }
+
+  if (gameMode === 'postflop') {
+    return (
+      <div className="App">
+        <PostFlopQuiz onBackToMenu={() => setGameMode('menu')} />
       </div>
     );
   }
