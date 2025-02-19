@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import Card from './Card';
-import '../styles/PostFlopQuiz.css';
+import '../styles/PostFlopCalc.css';
 
-interface PostFlopQuizProps {
+interface PostFlopCalcProps {
   onBackToMenu: () => void;
 }
 
@@ -12,7 +12,7 @@ interface CardType {
   image: string;
 }
 
-const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
+const PostFlopCalc: React.FC<PostFlopCalcProps> = ({ onBackToMenu }) => {
   const [selectedPlayerCards, setSelectedPlayerCards] = useState<CardType[]>([]);
   const [selectedBoardCards, setSelectedBoardCards] = useState<CardType[]>([]);
   const [selectedOpp1Cards, setSelectedOpp1Cards] = useState<CardType[]>([]);
@@ -20,15 +20,16 @@ const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
   const [equity, setEquity] = useState<any>(null);
   const [selectionMode, setSelectionMode] = useState<'player' | 'board' | 'opp1' | 'opp2'>('player');
   const [isCalculating, setIsCalculating] = useState(false);
+  const [deadCardsMode, setDeadCardsMode] = useState<boolean>(false);
 
   // Function to generate all 52 cards
   const generateDeck = () => {
     const suits = ['h', 'd', 'c', 's'];
-    const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
+    const values = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'].reverse();
     const deck: CardType[] = [];
 
-    suits.forEach(suit => {
-      values.forEach(value => {
+    values.forEach(value => {
+      suits.forEach(suit => {
         deck.push({
           value,
           suit,
@@ -72,7 +73,7 @@ const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
         }
         break;
       case 'opp2':
-        if (selectedOpp2Cards.length < 5) {
+        if (selectedOpp2Cards.length < 6) {
           setSelectedOpp2Cards([...selectedOpp2Cards, card]);
         }
         break;
@@ -107,64 +108,70 @@ const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
       const formatCards = (cards: CardType[]) => 
         cards.map(card => `${card.value}${card.suit}`);
 
-      // New function to format opponent ranges
       const formatOppRange = (cards: CardType[]) => {
-        // Group cards into pairs
         const ranges: string[] = [];
-        for (let i = 0; i < cards.length; i += 2) {
-          if (cards[i + 1]) {
-            // If we have a pair of cards, combine them
-            ranges.push(`${cards[i].value}${cards[i].suit}${cards[i + 1].value}${cards[i + 1].suit}`);
-          } else {
-            // If we have a single card
-            ranges.push(`${cards[i].value}${cards[i].suit}`);
-          }
+        let final_string: string = "";
+        for (let i = 0; i < cards.length; i += 1) {
+          final_string += `${cards[i].value}${cards[i].suit}`;
         }
+        ranges.push(final_string);
         return ranges;
       };
 
-      const endpoint = selectedOpp2Cards.length > 0 
-        ? 'http://localhost:5000/calculate_post_flop_3players'
-        : 'http://localhost:5000/calculate_post_flop_hu';
+      // If dead cards mode is on, use HU endpoint with dead cards
+      if (deadCardsMode) {
+        const endpoint = 'http://localhost:5000/calculate_post_flop_hu';
+        const payload = {
+          hand: formatCards(selectedPlayerCards),
+          board: formatCards(selectedBoardCards),
+          deadCards: formatCards(selectedOpp2Cards),
+          opp_range: formatOppRange(selectedOpp1Cards)
+        };
 
-      const payload = selectedOpp2Cards.length > 0 
-        ? {
-            hand: formatCards(selectedPlayerCards),
-            board: formatCards(selectedBoardCards),
-            opp_range_1: formatOppRange(selectedOpp1Cards),
-            opp_range_2: formatOppRange(selectedOpp2Cards)
-          }
-        : {
-            hand: formatCards(selectedPlayerCards),
-            board: formatCards(selectedBoardCards),
-            opp_range: formatOppRange(selectedOpp1Cards)
-          };
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
 
-      // Add detailed console logging
-      console.log('API Request Details:');
-      console.log('Endpoint:', endpoint);
-      console.log('Payload:', JSON.stringify(payload, null, 2));
-      console.log('Player Cards:', selectedPlayerCards.map(c => `${c.value}${c.suit}`));
-      console.log('Board Cards:', selectedBoardCards.map(c => `${c.value}${c.suit}`));
-      console.log('Opponent 1 Range:', formatOppRange(selectedOpp1Cards));
-      if (selectedOpp2Cards.length > 0) {
-        console.log('Opponent 2 Range:', formatOppRange(selectedOpp2Cards));
+        const result = await response.json();
+        setEquity(result);
+      } else {
+        // Original logic for 2 or 3 player equity calculation
+        const endpoint = selectedOpp2Cards.length > 0 
+          ? 'http://localhost:5000/calculate_post_flop_3players'
+          : 'http://localhost:5000/calculate_post_flop_hu';
+
+        const payload = selectedOpp2Cards.length > 0 
+          ? {
+              hand: formatCards(selectedPlayerCards),
+              board: formatCards(selectedBoardCards),
+              opp_range_1: formatOppRange(selectedOpp1Cards),
+              opp_range_2: formatOppRange(selectedOpp2Cards)
+            }
+          : {
+              hand: formatCards(selectedPlayerCards),
+              board: formatCards(selectedBoardCards),
+              opp_range: formatOppRange(selectedOpp1Cards)
+            };
+        
+            console.log('API Request Details:', {
+              endpoint,
+              payload: JSON.stringify(payload, null, 2)
+            });
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        setEquity(result);
       }
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const result = await response.json();
-      console.log('API Response:', result);
-      console.log('Response type:', typeof result);
-      console.log('Response structure:', Object.keys(result));
-      
-      setEquity(result);
     } catch (error) {
       console.error('Error calculating equity:', error);
       alert('Error calculating equity');
@@ -182,9 +189,22 @@ const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
   };
 
   return (
-    <div className="post-flop-quiz">
-      <h2>Post-Flop Equity Quiz</h2>
+    <div className="post-flop-calc">
+      <h2>Post-Flop Equity Calc</h2>
       
+      {/* Add Dead Cards toggle */}
+      <div className="mode-toggle">
+        <label className="toggle-switch">
+          <input
+            type="checkbox"
+            checked={deadCardsMode}
+            onChange={(e) => setDeadCardsMode(e.target.checked)}
+          />
+          <span className="toggle-slider"></span>
+          Dead Cards Mode
+        </label>
+      </div>
+
       <div className="selection-controls">
         <button 
           className={selectionMode === 'player' ? 'active' : ''} 
@@ -208,7 +228,7 @@ const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
           className={selectionMode === 'opp2' ? 'active' : ''} 
           onClick={() => setSelectionMode('opp2')}
         >
-          Select Opponent 2 ({selectedOpp2Cards.length}/5)
+          {deadCardsMode ? 'Select Dead Cards' : 'Select Opponent 2'} ({selectedOpp2Cards.length}/6)
         </button>
       </div>
 
@@ -271,7 +291,7 @@ const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
           )}
         </div>
         <div className="opp2-cards">
-          <h3>Opponent 2 (Optional)</h3>
+          <h3>{deadCardsMode ? 'Dead Cards' : 'Opponent 2 (Optional)'}</h3>
           <div className="cards-container">
             {selectedOpp2Cards.map((card, index) => (
               <div key={index} onClick={() => removeCard('opp2', index)} className="card-wrapper">
@@ -279,7 +299,7 @@ const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
               </div>
             ))}
           </div>
-          {equity && equity.opp2_equity && (
+          {equity && equity.opp2_equity && !deadCardsMode && (
             <div className="equity-value">
               Equity: {equity.opp2_equity?.toFixed(2)}%
             </div>
@@ -308,4 +328,4 @@ const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
   );
 };
 
-export default PostFlopQuiz;
+export default PostFlopCalc;

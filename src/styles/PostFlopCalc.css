@@ -1,4 +1,4 @@
-.post-flop-quiz {
+.post-flop-calc {
   margin: 0;  /* Remove any default margins */
   padding: 0; /* Remove any default padding */
   width: 100%;
@@ -195,10 +195,15 @@
 }
 
 /* Opponent sections - 20% larger */
-.selected-cards .opp1-cards,
-.selected-cards .opp2-cards {
+.selected-cards .opp1-cards {
   min-width: 240px;  /* Increased from 200px by 20% */
   max-width: 360px;  /* Increased from 300px by 20% */
+  flex: 1.2;        /* Slightly increased flex ratio */
+}
+
+.selected-cards .opp2-cards {
+  min-width: 350px;  /* Increased from 200px by 20% */
+  max-width: 500px;  /* Increased from 300px by 20% */
   flex: 1.2;        /* Slightly increased flex ratio */
 }
 
@@ -284,7 +289,7 @@
 /* Scrollbar styling for card selection deck */
 .deck::-webkit-scrollbar,
 .cards-container::-webkit-scrollbar {
-  height: 8px;  /* Slightly taller */
+  height: 15px;  /* Slightly taller */
   cursor: pointer;
 }
 
@@ -453,4 +458,62 @@
 .action-buttons button:disabled {
   background-color: #90CAF9;
   cursor: wait;
+}
+
+/* Toggle switch styles */
+.mode-toggle {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 20px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #1565C0;  /* Changed from #333 to a bright blue */
+  text-shadow: 0 1px 1px rgba(0,0,0,0.1);  /* Added subtle text shadow */
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+  background-color: #ccc;
+  border-radius: 13px;
+  margin-right: 10px;
+  transition: .4s;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+input:checked + .toggle-slider {
+  background-color: #2196F3;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(24px);
 } 
