@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import './styles/App.css';
 import QuizMode from './components/QuizMode';
 import PostFlopCalc from './components/PostFlopCalc';
+import PostFlopQuiz from './components/PostFlopQuiz';
 
 const App: React.FC = () => {
-  const [gameMode, setGameMode] = useState<'menu' | 'quiz' | 'postflop'>('menu');
+  const [gameMode, setGameMode] = useState<'menu' | 'quiz' | 'postflop' | 'postflopquiz'>('menu');
 
   if (gameMode === 'menu') {
     return (
@@ -17,6 +18,9 @@ const App: React.FC = () => {
           </button>
           <button onClick={() => setGameMode('postflop')}>
             Post-Flop Calc
+          </button>
+          <button onClick={() => setGameMode('postflopquiz')}>
+            Post-Flop Quiz
           </button>
         </div>
       </div>
@@ -35,6 +39,14 @@ const App: React.FC = () => {
     return (
       <div className="App">
         <PostFlopCalc onBackToMenu={() => setGameMode('menu')} />
+      </div>
+    );
+  }
+
+  if (gameMode === 'postflopquiz') {
+    return (
+      <div className="App">
+        <PostFlopQuiz onBackToMenu={() => setGameMode('menu')} />
       </div>
     );
   }
