@@ -58,7 +58,7 @@ const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
   // Function to calculate hand score
   const calculateHandScore = async (hand: string[]) => {
     try {
-      const response = await fetch('http://localhost:5000/calculate_score', {
+      const response = await fetch('http://localhost:5000/calculate_score_6plo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -225,7 +225,7 @@ const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
 
     try {
       if (deadCardsMode) {
-        const endpoint = 'http://localhost:5000/calculate_post_flop_hu';
+        const endpoint = 'http://localhost:5000/calculate_post_flop_hu_6plo';
         const payload = {
           hand: formatCards(selectedPlayerCards),
           board: formatCards(selectedBoardCards),
@@ -246,8 +246,8 @@ const PostFlopQuiz: React.FC<PostFlopQuizProps> = ({ onBackToMenu }) => {
         return result;
       } else {
         const endpoint = selectedOpp2Cards.length > 0 
-          ? 'http://localhost:5000/calculate_post_flop_3players'
-          : 'http://localhost:5000/calculate_post_flop_hu';
+          ? 'http://localhost:5000/calculate_post_flop_3players_6plo'
+          : 'http://localhost:5000/calculate_post_flop_hu_6plo';
 
         const payload = selectedOpp2Cards.length > 0 
           ? {

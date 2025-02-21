@@ -120,7 +120,7 @@ const PostFlopCalc: React.FC<PostFlopCalcProps> = ({ onBackToMenu }) => {
 
       // If dead cards mode is on, use HU endpoint with dead cards
       if (deadCardsMode) {
-        const endpoint = 'http://localhost:5000/calculate_post_flop_hu';
+        const endpoint = 'http://localhost:5000/calculate_post_flop_hu_6plo';
         const payload = {
           hand: formatCards(selectedPlayerCards),
           board: formatCards(selectedBoardCards),
@@ -141,8 +141,8 @@ const PostFlopCalc: React.FC<PostFlopCalcProps> = ({ onBackToMenu }) => {
       } else {
         // Original logic for 2 or 3 player equity calculation
         const endpoint = selectedOpp2Cards.length > 0 
-          ? 'http://localhost:5000/calculate_post_flop_3players'
-          : 'http://localhost:5000/calculate_post_flop_hu';
+          ? 'http://localhost:5000/calculate_post_flop_3players_6plo'
+          : 'http://localhost:5000/calculate_post_flop_hu_6plo';
 
         const payload = selectedOpp2Cards.length > 0 
           ? {

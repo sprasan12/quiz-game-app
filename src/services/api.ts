@@ -58,7 +58,7 @@ export const calculateScore = async (selectedCards: CardType[]): Promise<ScoreRe
   });
 
   try {
-    const response = await fetch('http://localhost:5000/calculate_score', {
+    const response = await fetch('http://localhost:5000/calculate_score_6plo', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
